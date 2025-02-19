@@ -9,12 +9,13 @@ namespace CosmicCuration.Enemy
         #region Dependencies
         private EnemyView enemyPrefab;
         private EnemyScriptableObject enemyScriptableObject;
+        private EnemyPool _enemyPoolObj;
         #endregion
 
         #region Variables
         private bool isSpawning;
         private float currentSpawnRate;
-        private float spawnTimer; 
+        private float spawnTimer;
         #endregion
 
         #region Initialization
@@ -22,6 +23,8 @@ namespace CosmicCuration.Enemy
         {
             this.enemyPrefab = enemyPrefab;
             this.enemyScriptableObject = enemyScriptableObject;
+            _enemyPoolObj = new EnemyPool(enemyPrefab, enemyScriptableObject.enemyData);
+
             InitializeVariables();
         }
 
@@ -30,7 +33,7 @@ namespace CosmicCuration.Enemy
             isSpawning = true;
             currentSpawnRate = enemyScriptableObject.initialSpawnRate;
             spawnTimer = currentSpawnRate;
-        } 
+        }
         #endregion
 
         public void Update()
@@ -59,7 +62,7 @@ namespace CosmicCuration.Enemy
 
         private void SpawnEnemyAtPosition(Vector2 spawnPosition, EnemyOrientation enemyOrientation)
         {
-            EnemyController spawnedEnemy = new EnemyController(enemyPrefab, enemyScriptableObject.enemyData);
+            EnemyController spawnedEnemy = _enemyPoolObj.GetEnemy();
             spawnedEnemy.Configure(spawnPosition, enemyOrientation);
         }
 
@@ -94,7 +97,7 @@ namespace CosmicCuration.Enemy
             }
 
             return spawnPosition;
-        } 
+        }
         #endregion
 
         private void IncreaseDifficulty()
@@ -108,6 +111,8 @@ namespace CosmicCuration.Enemy
         private void ResetSpawnTimer() => spawnTimer = currentSpawnRate;
 
         public void SetEnemySpawning(bool setActive) => isSpawning = setActive;
+
+        public void ReturnEnemyToPool(EnemyController returnedEnemy) => _enemyPoolObj.ReturnEnemyToPool(returnedEnemy);
     }
 
     public enum EnemyOrientation
@@ -116,5 +121,5 @@ namespace CosmicCuration.Enemy
         Down,
         Left,
         Right
-    } 
+    }
 }
